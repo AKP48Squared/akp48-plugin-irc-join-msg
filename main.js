@@ -57,7 +57,7 @@ IRCJoinMsg.prototype.handleJoin = function (channel, nick, instance) {
   }
 };
 
-IRCJoinMsg.prototype.handleMessage = function (msg, ctx, res) {
+IRCJoinMsg.prototype.handleCommand = function (msg, ctx, res) {
 
   GLOBAL.logger.silly(`${this._pluginName}: Received command.`);
   // if this isn't an IRC instance, drop the command.
