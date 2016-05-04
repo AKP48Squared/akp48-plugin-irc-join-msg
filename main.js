@@ -26,8 +26,7 @@ class IRCJoinMsg extends MessageHandlerPlugin {
     }
 
     this._AKP48.on('ircJoin', (channel, nick, instance) => {
-      if(instance.pluginName !== 'IRC') {return;}
-      self.handleJoin(channel, nick, instance._client);
+      self.handleJoin(channel, nick, instance);
     });
   }
 
