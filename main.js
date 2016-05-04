@@ -5,9 +5,7 @@ class IRCJoinMsg extends MessageHandlerPlugin {
   constructor(AKP48, config) {
     super('IRCJoinMsg', AKP48);
     var self = this;
-    this.instances = [];
     this._config = config;
-    this._handle = null;
 
     this.perms = [
       'irc.channel.owner',
@@ -27,17 +25,9 @@ class IRCJoinMsg extends MessageHandlerPlugin {
       this._AKP48.saveConfig(this._config, 'irc-join-msg');
     }
 
-    this._AKP48.on('serverConnect', (id, instance) => {
+    this._AKP48.on('ircJoin', (channel, nick, instance) => {
       if(instance.pluginName !== 'IRC') {return;}
-      self.instances.push(instance._client);
-
-      if(!self._handle) {
-        self._handle = function(channel, nick){
-          self.handleJoin(channel, nick, instance._client);
-        };
-      }
-
-      instance._client.on('join', self._handle);
+      self.handleJoin(channel, nick, instance._client);
     });
   }
 
