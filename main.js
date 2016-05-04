@@ -43,7 +43,7 @@ class IRCJoinMsg extends MessageHandlerPlugin {
 
   unload() {
     for (let svr of this.instances) {
-      svr.removeListener('join', this._handleJoin);
+      svr.removeListener('join', this._handle);
     }
     return true;
   }
