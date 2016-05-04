@@ -1,0 +1,31 @@
+{
+  "name": "irc-join-msg",
+  "type": "MessageHandler",
+  "description": "Google commands for AKP48.",
+  "main": "main.js",
+  "commands": {
+    "setMessage": {
+      "helpText": "Sets the message that the bot sends in the current channel.",
+      "usageText": "<msg>",
+      "perms": [
+        "irc.channel.owner",
+        "irc.channel.op",
+        "irc.channel.protected",
+        "irc.channel.halfop",
+        "AKP48.owner",
+        "AKP48.op"
+      ]
+    },
+    "clearMessage": {
+      "helpText": "Clear the message that the bot sends to the current channel, stopping it from being sent anymore.",
+      "perms": [
+        "irc.channel.owner",
+        "irc.channel.op",
+        "irc.channel.protected",
+        "irc.channel.halfop",
+        "AKP48.owner",
+        "AKP48.op"
+      ]
+    }
+  }
+}
