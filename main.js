@@ -58,8 +58,8 @@ IRCJoinMsg.prototype.handleJoin = function (channel, nick, instance) {
 };
 
 IRCJoinMsg.prototype.handleCommand = function (msg, ctx, res) {
-
   GLOBAL.logger.silly(`${this._pluginName}: Received command.`);
+
   // if this isn't an IRC instance, drop the command.
   if(!ctx.instanceType || ctx.instanceType !== 'irc') {
     GLOBAL.logger.silly(`${this._pluginName}: Dropping command; not IRC instance.`);
@@ -67,36 +67,38 @@ IRCJoinMsg.prototype.handleCommand = function (msg, ctx, res) {
   }
   var good = false;
 
-  for (let perm in ctx.perms) {
-    if(this.perms.contains(perm)) {
+  for (let perm of ctx.permissions) {
+    if(this.perms.includes(perm)) {
       good = true;
       break;
     }
   }
 
-  if(!good) {return;}
+  if(!good) {global.logger.silly(`${this._pluginName}: Dropping command; no permission.`);return;}
 
-  if(msg.toLowerCase().startsWith('setmessage ')) {
+  if(msg.toLowerCase().startsWith('setmessage')) {
     //remove command from message
     msg = msg.split(' ');
-    msg.splice(1, 0);
+    msg.splice(0, 1);
     msg = msg.join(' ');
 
-    res(this.setMessage(msg, ctx));
+    res(this.setMessage(msg, ctx.to));
   }
 
-  if(msg.toLowerCase().startsWith('clearmessage ')) {
-    res(this.clearMessage(ctx));
+  if(msg.toLowerCase().startsWith('clearmessage')) {
+    res(this.clearMessage(ctx.to));
   }
 };
 
 IRCJoinMsg.prototype.setMessage = function (msg, chan) {
+  GLOBAL.logger.silly(`${this._pluginName}: Handling setMessage.`);
   this._config.channels[chan] = msg;
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
   return `Join message for ${chan} has been set to "${msg}"`;
 };
 
 IRCJoinMsg.prototype.clearMessage = function (chan) {
+  GLOBAL.logger.silly(`${this._pluginName}: Handling clearMessage.`);
   if(this._config.channels[chan]) {
     delete this._config.channels[chan];
   }
