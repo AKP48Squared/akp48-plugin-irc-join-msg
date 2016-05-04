@@ -28,15 +28,15 @@ class IRCJoinMsg extends MessageHandlerPlugin {
     }
 
     this._AKP48.on('serverConnect', (id, instance) => {
-      self.instances.push(instance);
+      self.instances.push(instance._client);
 
       if(!self._handle) {
         self._handle = function(channel, nick){
-          self.handleJoin(channel, nick, instance);
+          self.handleJoin(channel, nick, instance._client);
         };
       }
 
-      instance.on('join', self._handle);
+      instance._client.on('join', self._handle);
     });
   }
 
