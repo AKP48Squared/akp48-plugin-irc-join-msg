@@ -18,10 +18,9 @@ class IRCJoinMsg extends MessageHandlerPlugin {
 
     if(!this._config) {
       this._config = {
-        channels: {
-          '#exampleChannel': 'This is an example message. Welcome, $user!'
-        }
+        channels: {}
       };
+      this._config.channels[`${this._AKP48.getUUID()}:#exampleChannel`] = 'This is an example message. Welcome, $user!';
       this._AKP48.saveConfig(this._config, 'irc-join-msg');
     }
 
@@ -64,25 +63,25 @@ IRCJoinMsg.prototype.handleCommand = function (msg, ctx, res) {
     msg.splice(0, 1);
     msg = msg.join(' ');
 
-    res(this.setMessage(msg, ctx.to));
+    res(this.setMessage(msg, ctx.to, ctx.instanceId));
   }
 
   if(msg.toLowerCase().startsWith('clearmessage')) {
-    res(this.clearMessage(ctx.to));
+    res(this.clearMessage(ctx.to, ctx.instanceId));
   }
 };
 
-IRCJoinMsg.prototype.setMessage = function (msg, chan) {
+IRCJoinMsg.prototype.setMessage = function (msg, chan, id) {
   global.logger.silly(`${this._pluginName}: Handling setMessage.`);
-  this._config.channels[chan] = msg;
+  this._config.channels[`${id}:${chan}`] = msg;
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
   return `Join message for ${chan} has been set to "${msg}"`;
 };
 
-IRCJoinMsg.prototype.clearMessage = function (chan) {
+IRCJoinMsg.prototype.clearMessage = function (chan, id) {
   global.logger.silly(`${this._pluginName}: Handling clearMessage.`);
-  if(this._config.channels[chan]) {
-    delete this._config.channels[chan];
+  if(this._config.channels[`${id}:${chan}`]) {
+    delete this._config.channels[`${id}:${chan}`];
   }
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
   return `Join message for ${chan} has been cleared.`;
