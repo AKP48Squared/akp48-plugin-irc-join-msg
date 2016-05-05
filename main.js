@@ -26,23 +26,16 @@ class IRCJoinMsg extends MessageHandlerPlugin {
     }
 
     this._AKP48.on('ircJoin', (channel, nick, instance) => {
-      self.handleJoin(channel, nick, instance);
+      self.handleJoin(channel, nick, instance._client);
     });
-  }
-
-  unload() {
-    for (let svr of this.instances) {
-      svr.removeListener('join', this._handle);
-    }
-    return true;
   }
 }
 
-IRCJoinMsg.prototype.handleJoin = function (channel, nick, instance) {
+IRCJoinMsg.prototype.handleJoin = function (channel, nick, client) {
   global.logger.silly(`${this._pluginName}: Received join event.`);
   if(this._config.channels[channel]) {
     var msg = this._config.channels[channel].replace(/\$user/g, nick);
-    instance.say(channel, msg);
+    client.say(channel, msg);
   }
 };
 
