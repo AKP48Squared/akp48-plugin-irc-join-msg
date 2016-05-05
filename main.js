@@ -39,7 +39,7 @@ class IRCJoinMsg extends MessageHandlerPlugin {
 }
 
 IRCJoinMsg.prototype.handleJoin = function (channel, nick, instance) {
-  GLOBAL.logger.silly(`${this._pluginName}: Received join event.`);
+  global.logger.silly(`${this._pluginName}: Received join event.`);
   if(this._config.channels[channel]) {
     var msg = this._config.channels[channel].replace(/\$user/g, nick);
     instance.say(channel, msg);
@@ -47,11 +47,11 @@ IRCJoinMsg.prototype.handleJoin = function (channel, nick, instance) {
 };
 
 IRCJoinMsg.prototype.handleCommand = function (msg, ctx, res) {
-  GLOBAL.logger.silly(`${this._pluginName}: Received command.`);
+  global.logger.silly(`${this._pluginName}: Received command.`);
 
   // if this isn't an IRC instance, drop the command.
   if(!ctx.instanceType || ctx.instanceType !== 'irc') {
-    GLOBAL.logger.silly(`${this._pluginName}: Dropping command; not IRC instance.`);
+    global.logger.silly(`${this._pluginName}: Dropping command; not IRC instance.`);
     return;
   }
   var good = false;
@@ -80,14 +80,14 @@ IRCJoinMsg.prototype.handleCommand = function (msg, ctx, res) {
 };
 
 IRCJoinMsg.prototype.setMessage = function (msg, chan) {
-  GLOBAL.logger.silly(`${this._pluginName}: Handling setMessage.`);
+  global.logger.silly(`${this._pluginName}: Handling setMessage.`);
   this._config.channels[chan] = msg;
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
   return `Join message for ${chan} has been set to "${msg}"`;
 };
 
 IRCJoinMsg.prototype.clearMessage = function (chan) {
-  GLOBAL.logger.silly(`${this._pluginName}: Handling clearMessage.`);
+  global.logger.silly(`${this._pluginName}: Handling clearMessage.`);
   if(this._config.channels[chan]) {
     delete this._config.channels[chan];
   }
