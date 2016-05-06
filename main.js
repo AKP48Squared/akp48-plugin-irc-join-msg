@@ -34,7 +34,7 @@ IRCJoinMsg.prototype.handleJoin = function (chan, nick, id, client) {
   global.logger.silly(`${this._pluginName}: Received join event.`);
   if(this._config.channels[`${id}:${chan}`]) {
     var msg = this._config.channels[`${id}:${chan}`].replace(/\$user/g, nick);
-    client.say(channel, msg);
+    client.say(chan, msg);
   }
 };
 
