@@ -1,7 +1,6 @@
 'use strict';
-const MessageHandlerPlugin = require('../../lib/MessageHandlerPlugin');
 
-class IRCJoinMsg extends MessageHandlerPlugin {
+class IRCJoinMsg extends global.AKP48.pluginTypes.MessageHandler {
   constructor(AKP48, config) {
     super('IRCJoinMsg', AKP48);
     var self = this;
