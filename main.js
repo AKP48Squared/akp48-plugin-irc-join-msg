@@ -88,3 +88,4 @@ IRCJoinMsg.prototype.clearMessage = function (chan, id) {
 
 module.exports = IRCJoinMsg;
 module.exports.type = 'MessageHandler';
+module.exports.pluginName = 'irc-join-msg';
