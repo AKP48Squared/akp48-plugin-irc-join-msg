@@ -181,6 +181,7 @@ IRCJoinMsg.prototype.include = function (nicks, chan, id) {
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
 
   var has = (removedNicks.length === 1) ? 'has' : 'have';
+  if(removedNicks.length === 0) {removedNicks = ['nobody'];}
   var extra = (removedNicks.length !== nicks.length) ? ' (Some nicks were already not in the exclude list.)' : '';
   return `${removedNicks.join(', ')} ${has} been removed from the exclude list for ${chan}.${extra}`;
 };
