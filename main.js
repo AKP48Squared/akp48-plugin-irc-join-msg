@@ -51,7 +51,7 @@ IRCJoinMsg.prototype.handleJoin = function (chan, nick, id, client) {
   var chanConf = this._config.channels[`${id}:${chan}`];
   if(chanConf) {
     var msg = chanConf.msg.replace(/\$user/g, nick);
-    if(!chanConf.excludeNicks.includes(nick)) {
+    if(!chanConf.excludeNicks.includes(nick.toLowerCase())) {
       client.say(chan, msg);
     }
   }
@@ -94,7 +94,7 @@ IRCJoinMsg.prototype.handleCommand = function (msg, ctx, res) {
     msg = msg.split(' ');
     msg.splice(0, 1);
 
-    res(this.exclude(msg, ctx.to, ctx.instanceId));
+    res(this.excludeList(msg, ctx.to, ctx.instanceId));
   }
 
   if(msg.toLowerCase().startsWith('include')) {
@@ -102,7 +102,7 @@ IRCJoinMsg.prototype.handleCommand = function (msg, ctx, res) {
     msg = msg.split(' ');
     msg.splice(0, 1);
 
-    res(this.include(msg, ctx.to, ctx.instanceId));
+    res(this.includeList(msg, ctx.to, ctx.instanceId));
   }
 };
 
@@ -123,7 +123,7 @@ IRCJoinMsg.prototype.clearMessage = function (chan, id) {
   return `Join message for ${chan} has been cleared.`;
 };
 
-IRCJoinMsg.prototype.exclude = function (nicks, chan, id) {
+IRCJoinMsg.prototype.excludeList = function (nicks, chan, id) {
   global.logger.silly(`${this._pluginName}: Handling exclude.`);
 
   if(!nicks.length) {
@@ -138,10 +138,10 @@ IRCJoinMsg.prototype.exclude = function (nicks, chan, id) {
   }
 
   for (var i = 0; i < nicks.length; i++) {
-    if(confChan.excludeNicks.includes(nicks[i])) {
+    if(confChan.excludeNicks.includes(nicks[i].toLowerCase())) {
       continue;
     }
-    confChan.excludeNicks.push(nicks[i]);
+    confChan.excludeNicks.push(nicks[i].toLowerCase());
   }
 
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
@@ -150,7 +150,7 @@ IRCJoinMsg.prototype.exclude = function (nicks, chan, id) {
   return `${nicks.join(', ')} ${has} been added to the exclude list for ${chan}.`;
 };
 
-IRCJoinMsg.prototype.include = function (nicks, chan, id) {
+IRCJoinMsg.prototype.includeList = function (nicks, chan, id) {
   global.logger.silly(`${this._pluginName}: Handling include.`);
 
   if(!nicks.length) {
@@ -180,9 +180,10 @@ IRCJoinMsg.prototype.include = function (nicks, chan, id) {
 
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
 
+  var extra = false;
+  if(removedNicks.length === 0) {removedNicks = ['nobody']; extra = true;}
   var has = (removedNicks.length === 1) ? 'has' : 'have';
-  if(removedNicks.length === 0) {removedNicks = ['nobody'];}
-  var extra = (removedNicks.length !== nicks.length) ? ' (Some nicks were already not in the exclude list.)' : '';
+  extra = (removedNicks.length !== nicks.length || extra) ? ' (Some nicks were already not in the exclude list.)' : '';
   return `${removedNicks.join(', ')} ${has} been removed from the exclude list for ${chan}.${extra}`;
 };
 
