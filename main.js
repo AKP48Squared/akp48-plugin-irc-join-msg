@@ -116,6 +116,7 @@ IRCJoinMsg.prototype.setMessage = function (msg, chan, id) {
   var confChan = this._config.channels[`${id}:${chan}`];
   if(!confChan) {
     this._config.channels[`${id}:${chan}`] = {};
+    confChan = this._config.channels[`${id}:${chan}`];
   }
   confChan.msg = msg;
   confChan.excludeNicks = [];
