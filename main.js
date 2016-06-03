@@ -48,9 +48,12 @@ IRCJoinMsg.prototype.migrateOldConfig = function () {
 
 IRCJoinMsg.prototype.handleJoin = function (chan, nick, id, client) {
   global.logger.silly(`${this._pluginName}: Received join event.`);
-  if(this._config.channels[`${id}:${chan}`]) {
-    var msg = this._config.channels[`${id}:${chan}`].msg.replace(/\$user/g, nick);
-    client.say(chan, msg);
+  var chanConf = this._config.channels[`${id}:${chan}`];
+  if(chanConf) {
+    var msg = chanConf.msg.replace(/\$user/g, nick);
+    if(!chanConf.excludeNicks.includes(nick)) {
+      client.say(chan, msg);
+    }
   }
 };
 
