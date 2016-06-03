@@ -89,12 +89,17 @@ IRCJoinMsg.prototype.handleCommand = function (msg, ctx, res) {
     res(this.clearMessage(ctx.to, ctx.instanceId));
   }
 
+  if(msg.toLowerCase().startsWith('excludelist')) {
+    res(this.excludeList(ctx.to, ctx.instanceId));
+    return; // to stop from hitting the next command.
+  }
+
   if(msg.toLowerCase().startsWith('exclude')) {
     //remove command from message
     msg = msg.split(' ');
     msg.splice(0, 1);
 
-    res(this.excludeList(msg, ctx.to, ctx.instanceId));
+    res(this.exclude(msg, ctx.to, ctx.instanceId));
   }
 
   if(msg.toLowerCase().startsWith('include')) {
@@ -102,7 +107,7 @@ IRCJoinMsg.prototype.handleCommand = function (msg, ctx, res) {
     msg = msg.split(' ');
     msg.splice(0, 1);
 
-    res(this.includeList(msg, ctx.to, ctx.instanceId));
+    res(this.include(msg, ctx.to, ctx.instanceId));
   }
 };
 
@@ -123,7 +128,18 @@ IRCJoinMsg.prototype.clearMessage = function (chan, id) {
   return `Join message for ${chan} has been cleared.`;
 };
 
-IRCJoinMsg.prototype.excludeList = function (nicks, chan, id) {
+IRCJoinMsg.prototype.excludeList = function (chan, id) {
+  global.logger.silly(`${this._pluginName}: Handling excludeList.`);
+
+  var confChan = this._config.channels[`${id}:${chan}`];
+  if(!confChan) {
+    global.logger.debug(`${this._pluginName}: Refusing to show list for a channel where no message has been set.`);
+    return `There is no exclude list, since there is no join message set for this channel.`;
+  }
+  return confChan.excludeNicks.length ? confChan.excludeNicks.join(', ') : 'The exclude list for this channel is empty.';
+};
+
+IRCJoinMsg.prototype.exclude = function (nicks, chan, id) {
   global.logger.silly(`${this._pluginName}: Handling exclude.`);
 
   if(!nicks.length) {
@@ -150,7 +166,7 @@ IRCJoinMsg.prototype.excludeList = function (nicks, chan, id) {
   return `${nicks.join(', ')} ${has} been added to the exclude list for ${chan}.`;
 };
 
-IRCJoinMsg.prototype.includeList = function (nicks, chan, id) {
+IRCJoinMsg.prototype.include = function (nicks, chan, id) {
   global.logger.silly(`${this._pluginName}: Handling include.`);
 
   if(!nicks.length) {
