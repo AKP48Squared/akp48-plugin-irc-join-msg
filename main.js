@@ -113,8 +113,12 @@ IRCJoinMsg.prototype.handleCommand = function (msg, ctx, res) {
 
 IRCJoinMsg.prototype.setMessage = function (msg, chan, id) {
   global.logger.silly(`${this._pluginName}: Handling setMessage.`);
-  this._config.channels[`${id}:${chan}`].msg = msg;
-  this._config.channels[`${id}:${chan}`].excludeNicks = [];
+  var confChan = this._config.channels[`${id}:${chan}`];
+  if(!confChan) {
+    this._config.channels[`${id}:${chan}`] = {};
+  }
+  confChan.msg = msg;
+  confChan.excludeNicks = [];
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
   return `Join message for ${chan} has been set to "${msg}"`;
 };
