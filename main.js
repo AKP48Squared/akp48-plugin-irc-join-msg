@@ -20,7 +20,7 @@ class IRCJoinMsg extends global.AKP48.pluginTypes.MessageHandler {
         channels: {}
       };
       this._config.channels[`${this._AKP48.getUUID()}:#exampleChannel`] = 'This is an example message. Welcome, $user!';
-      this._AKP48.saveConfig(this._config, 'irc-join-msg');
+      this._AKP48.saveConfig(this._config, 'IRCJoinMsg');
     }
 
 
