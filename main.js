@@ -89,7 +89,7 @@ IRCJoinMsg.prototype.setMessage = function (ctx) {
     confChan = this._config.channels[`${id}:${chan}`];
   }
   confChan.msg = msg;
-  confChan.excludeNicks = [];
+  confChan.excludeNicks = confChan.excludeNicks || [];
   this._AKP48.saveConfig(this._config, 'IRCJoinMsg');
   return ctx.reply(`Join message for ${chan} has been set to "${msg}"`);
 };
