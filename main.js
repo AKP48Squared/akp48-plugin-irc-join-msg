@@ -1,11 +1,11 @@
 'use strict';
 
 class IRCJoinMsg extends global.AKP48.pluginTypes.MessageHandler {
-  constructor(AKP48, config) {
+  constructor(AKP48) {
     super('IRCJoinMsg', AKP48);
-    var self = this;
-    this._config = config;
+  }
 
+  load() {
     this.perms = [
       'irc.channel.owner',
       'irc.channel.op',
@@ -23,6 +23,8 @@ class IRCJoinMsg extends global.AKP48.pluginTypes.MessageHandler {
       this._AKP48.saveConfig(this._config, 'irc-join-msg');
     }
 
+
+    var self = this;
     this._AKP48.on('ircJoin', (channel, nick, instance) => {
       self.handleJoin(channel, nick, instance._id, instance._client);
     });
