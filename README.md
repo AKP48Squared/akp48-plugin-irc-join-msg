@@ -1,11 +1,13 @@
-This documentation is placeholder documentation. Real docs coming soon.
+irc-join-msg provides AKP48Squared with the ability to automatically send a message to anyone who joins an IRC channel, when they join.
 
 # Installation
 
-This plugin is included by default on new installations of AKP48Squared. No further installation is needed.
+Step 1: `git clone` this repo into your AKP48Squared plugins directory (See the AKP48Squared documentation for more details).
+Step 2: Restart or reload the bot.
 
 # Usage
 
+TODO: Finish documentation.
 Here's where we'll talk about how to use the plugin. More detail is available in the commands section below.
 
 # Commands
