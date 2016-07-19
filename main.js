@@ -91,7 +91,7 @@ IRCJoinMsg.prototype.setMessage = function (ctx) {
   confChan.msg = msg;
   confChan.excludeNicks = [];
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
-  ctx.reply(`Join message for ${chan} has been set to "${msg}"`);
+  return ctx.reply(`Join message for ${chan} has been set to "${msg}"`);
 };
 
 IRCJoinMsg.prototype.clearMessage = function (ctx) {
@@ -103,7 +103,7 @@ IRCJoinMsg.prototype.clearMessage = function (ctx) {
     delete this._config.channels[`${id}:${chan}`];
   }
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
-  ctx.reply(`Join message for ${chan} has been cleared.`);
+  return ctx.reply(`Join message for ${chan} has been cleared.`);
 };
 
 IRCJoinMsg.prototype.excludeList = function (ctx) {
@@ -128,13 +128,13 @@ IRCJoinMsg.prototype.exclude = function (ctx) {
 
   if(!nicks.length) {
     global.logger.debug(`${this.name}: Refusing to exclude without parameters provided.`);
-    ctx.reply(`You must provide a list of nicks to exclude!`);
+    return ctx.reply(`You must provide a list of nicks to exclude!`);
   }
 
   var confChan = this._config.channels[`${id}:${chan}`];
   if(!confChan) {
     global.logger.debug(`${this.name}: Refusing to exclude from channel without a join message set.`);
-    ctx.reply(`Cannot exclude people from a channel where no join message has been set.`);
+    return ctx.reply(`Cannot exclude people from a channel where no join message has been set.`);
   }
 
   for (var i = 0; i < nicks.length; i++) {
@@ -147,7 +147,7 @@ IRCJoinMsg.prototype.exclude = function (ctx) {
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
 
   var has = (nicks.length === 1) ? 'has' : 'have';
-  ctx.reply(`${nicks.join(', ')} ${has} been added to the exclude list for ${chan}.`);
+  return ctx.reply(`${nicks.join(', ')} ${has} been added to the exclude list for ${chan}.`);
 };
 
 IRCJoinMsg.prototype.include = function (ctx) {
@@ -159,13 +159,13 @@ IRCJoinMsg.prototype.include = function (ctx) {
 
   if(!nicks.length) {
     global.logger.debug(`${this.name}: Refusing to include without parameters provided.`);
-    ctx.reply(`You must provide a list of nicks to include!`);
+    return ctx.reply(`You must provide a list of nicks to include!`);
   }
 
   var confChan = this._config.channels[`${id}:${chan}`];
   if(!confChan) {
     global.logger.debug(`${this.name}: Refusing to include in channel without a join message set.`);
-    ctx.reply(`Cannot include people in a channel where no join message has been set.`);
+    return ctx.reply(`Cannot include people in a channel where no join message has been set.`);
   }
 
   var removedNicks = [];
@@ -188,7 +188,7 @@ IRCJoinMsg.prototype.include = function (ctx) {
   if(removedNicks.length === 0) {removedNicks = ['nobody']; extra = true;}
   var has = (removedNicks.length === 1) ? 'has' : 'have';
   extra = (removedNicks.length !== nicks.length || extra) ? ' (Some nicks were already not in the exclude list.)' : '';
-  ctx.reply(`${removedNicks.join(', ')} ${has} been removed from the exclude list for ${chan}.${extra}`);
+  return ctx.reply(`${removedNicks.join(', ')} ${has} been removed from the exclude list for ${chan}.${extra}`);
 };
 
 module.exports = IRCJoinMsg;
