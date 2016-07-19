@@ -44,13 +44,13 @@ IRCJoinMsg.prototype.handleCommand = function (ctx) {
   global.logger.silly(`${this._pluginName}: Received command.`);
 
   // if this isn't an IRC instance, drop the command.
-  if(!ctx.instanceType || ctx.instanceType !== 'irc') {
+  if(!ctx.instanceType() || ctx.instanceType() !== 'irc') {
     global.logger.silly(`${this._pluginName}: Dropping command; not IRC instance.`);
     return;
   }
   var good = false;
 
-  for (let perm of ctx.permissions) {
+  for (let perm of ctx.permissions()) {
     if(this.perms.includes(perm)) {
       good = true;
       break;
