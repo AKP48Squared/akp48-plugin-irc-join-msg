@@ -2,7 +2,7 @@
 
 class IRCJoinMsg extends global.AKP48.pluginTypes.MessageHandler {
   constructor(AKP48) {
-    super('IRCJoinMsg', AKP48);
+    super(AKP48, 'IRCJoinMsg');
   }
 
   load() {
