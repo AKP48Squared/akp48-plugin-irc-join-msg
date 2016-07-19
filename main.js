@@ -32,7 +32,7 @@ class IRCJoinMsg extends global.AKP48.pluginTypes.MessageHandler {
 }
 
 IRCJoinMsg.prototype.handleJoin = function (chan, nick, id, client) {
-  global.logger.silly(`${this._pluginName}: Received join event.`);
+  global.logger.silly(`${this.name}: Received join event.`);
   var chanConf = this._config.channels[`${id}:${chan}`];
   if(chanConf) {
     var msg = chanConf.msg.replace(/\$user/g, nick);
@@ -43,11 +43,11 @@ IRCJoinMsg.prototype.handleJoin = function (chan, nick, id, client) {
 };
 
 IRCJoinMsg.prototype.handleCommand = function (ctx) {
-  global.logger.silly(`${this._pluginName}: Received command.`);
+  global.logger.silly(`${this.name}: Received command.`);
 
   // if this isn't an IRC instance, drop the command.
   if(!ctx.instanceType() || ctx.instanceType() !== 'irc') {
-    global.logger.silly(`${this._pluginName}: Dropping command; not IRC instance.`);
+    global.logger.silly(`${this.name}: Dropping command; not IRC instance.`);
     return;
   }
   var good = false;
@@ -59,7 +59,7 @@ IRCJoinMsg.prototype.handleCommand = function (ctx) {
     }
   }
 
-  if(!good) {global.logger.silly(`${this._pluginName}: Dropping command; no permission.`);return;}
+  if(!good) {global.logger.silly(`${this.name}: Dropping command; no permission.`);return;}
 
   switch(ctx.command().toLowerCase()) {
     case 'setmessage':
@@ -78,7 +78,7 @@ IRCJoinMsg.prototype.handleCommand = function (ctx) {
 };
 
 IRCJoinMsg.prototype.setMessage = function (ctx) {
-  global.logger.silly(`${this._pluginName}: Handling setMessage.`);
+  global.logger.silly(`${this.name}: Handling setMessage.`);
   var id = ctx.instanceId();
   var chan = ctx.to();
   var msg = ctx.argText();
@@ -95,7 +95,7 @@ IRCJoinMsg.prototype.setMessage = function (ctx) {
 };
 
 IRCJoinMsg.prototype.clearMessage = function (ctx) {
-  global.logger.silly(`${this._pluginName}: Handling clearMessage.`);
+  global.logger.silly(`${this.name}: Handling clearMessage.`);
   var id = ctx.instanceId();
   var chan = ctx.to();
 
@@ -107,33 +107,33 @@ IRCJoinMsg.prototype.clearMessage = function (ctx) {
 };
 
 IRCJoinMsg.prototype.excludeList = function (ctx) {
-  global.logger.silly(`${this._pluginName}: Handling excludeList.`);
+  global.logger.silly(`${this.name}: Handling excludeList.`);
   var id = ctx.instanceId();
   var chan = ctx.to();
 
   var confChan = this._config.channels[`${id}:${chan}`];
   if(!confChan) {
-    global.logger.debug(`${this._pluginName}: Refusing to show list for a channel where no message has been set.`);
+    global.logger.debug(`${this.name}: Refusing to show list for a channel where no message has been set.`);
     ctx.reply(`There is no exclude list, since there is no join message set for this channel.`);
   }
   ctx.reply(confChan.excludeNicks.length ? confChan.excludeNicks.join(', ') : 'The exclude list for this channel is empty.');
 };
 
 IRCJoinMsg.prototype.exclude = function (ctx) {
-  global.logger.silly(`${this._pluginName}: Handling exclude.`);
+  global.logger.silly(`${this.name}: Handling exclude.`);
 
   var id = ctx.instanceId();
   var chan = ctx.to();
   var nicks = ctx.args();
 
   if(!nicks.length) {
-    global.logger.debug(`${this._pluginName}: Refusing to exclude without parameters provided.`);
+    global.logger.debug(`${this.name}: Refusing to exclude without parameters provided.`);
     ctx.reply(`You must provide a list of nicks to exclude!`);
   }
 
   var confChan = this._config.channels[`${id}:${chan}`];
   if(!confChan) {
-    global.logger.debug(`${this._pluginName}: Refusing to exclude from channel without a join message set.`);
+    global.logger.debug(`${this.name}: Refusing to exclude from channel without a join message set.`);
     ctx.reply(`Cannot exclude people from a channel where no join message has been set.`);
   }
 
@@ -151,20 +151,20 @@ IRCJoinMsg.prototype.exclude = function (ctx) {
 };
 
 IRCJoinMsg.prototype.include = function (ctx) {
-  global.logger.silly(`${this._pluginName}: Handling include.`);
+  global.logger.silly(`${this.name}: Handling include.`);
 
   var id = ctx.instanceId();
   var chan = ctx.to();
   var nicks = ctx.args();
 
   if(!nicks.length) {
-    global.logger.debug(`${this._pluginName}: Refusing to include without parameters provided.`);
+    global.logger.debug(`${this.name}: Refusing to include without parameters provided.`);
     ctx.reply(`You must provide a list of nicks to include!`);
   }
 
   var confChan = this._config.channels[`${id}:${chan}`];
   if(!confChan) {
-    global.logger.debug(`${this._pluginName}: Refusing to include in channel without a join message set.`);
+    global.logger.debug(`${this.name}: Refusing to include in channel without a join message set.`);
     ctx.reply(`Cannot include people in a channel where no join message has been set.`);
   }
 
