@@ -90,7 +90,7 @@ IRCJoinMsg.prototype.setMessage = function (ctx) {
   }
   confChan.msg = msg;
   confChan.excludeNicks = [];
-  this._AKP48.saveConfig(this._config, 'irc-join-msg');
+  this._AKP48.saveConfig(this._config, 'IRCJoinMsg');
   return ctx.reply(`Join message for ${chan} has been set to "${msg}"`);
 };
 
@@ -102,7 +102,7 @@ IRCJoinMsg.prototype.clearMessage = function (ctx) {
   if(this._config.channels[`${id}:${chan}`]) {
     delete this._config.channels[`${id}:${chan}`];
   }
-  this._AKP48.saveConfig(this._config, 'irc-join-msg');
+  this._AKP48.saveConfig(this._config, 'IRCJoinMsg');
   return ctx.reply(`Join message for ${chan} has been cleared.`);
 };
 
@@ -144,7 +144,7 @@ IRCJoinMsg.prototype.exclude = function (ctx) {
     confChan.excludeNicks.push(nicks[i].toLowerCase());
   }
 
-  this._AKP48.saveConfig(this._config, 'irc-join-msg');
+  this._AKP48.saveConfig(this._config, 'IRCJoinMsg');
 
   var has = (nicks.length === 1) ? 'has' : 'have';
   return ctx.reply(`${nicks.join(', ')} ${has} been added to the exclude list for ${chan}.`);
@@ -183,7 +183,7 @@ IRCJoinMsg.prototype.include = function (ctx) {
     removedNicks.push(nicks[i]);
   }
 
-  this._AKP48.saveConfig(this._config, 'irc-join-msg');
+  this._AKP48.saveConfig(this._config, 'IRCJoinMsg');
 
   var extra = false;
   if(removedNicks.length === 0) {removedNicks = ['nobody']; extra = true;}
@@ -193,5 +193,3 @@ IRCJoinMsg.prototype.include = function (ctx) {
 };
 
 module.exports = IRCJoinMsg;
-module.exports.type = 'MessageHandler';
-module.exports.pluginName = 'irc-join-msg';
