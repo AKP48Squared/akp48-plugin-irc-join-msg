@@ -23,28 +23,11 @@ class IRCJoinMsg extends global.AKP48.pluginTypes.MessageHandler {
       this._AKP48.saveConfig(this._config, 'irc-join-msg');
     }
 
-    this.migrateOldConfig();
-
     this._AKP48.on('ircJoin', (channel, nick, instance) => {
       self.handleJoin(channel, nick, instance._id, instance._client);
     });
   }
 }
-
-IRCJoinMsg.prototype.migrateOldConfig = function () {
-  for (var chan in this._config.channels) {
-    if (this._config.channels.hasOwnProperty(chan)) {
-      var c = this._config.channels[chan];
-      if (typeof c === 'string' || c instanceof String) {
-        var obj = {
-          msg: c,
-          excludeNicks: []
-        };
-        this._config.channels[chan] = obj;
-      }
-    }
-  }
-};
 
 IRCJoinMsg.prototype.handleJoin = function (chan, nick, id, client) {
   global.logger.silly(`${this._pluginName}: Received join event.`);
@@ -57,7 +40,7 @@ IRCJoinMsg.prototype.handleJoin = function (chan, nick, id, client) {
   }
 };
 
-IRCJoinMsg.prototype.handleCommand = function (msg, ctx, res) {
+IRCJoinMsg.prototype.handleCommand = function (ctx) {
   global.logger.silly(`${this._pluginName}: Received command.`);
 
   // if this isn't an IRC instance, drop the command.
@@ -76,43 +59,28 @@ IRCJoinMsg.prototype.handleCommand = function (msg, ctx, res) {
 
   if(!good) {global.logger.silly(`${this._pluginName}: Dropping command; no permission.`);return;}
 
-  if(msg.toLowerCase().startsWith('setmessage')) {
-    //remove command from message
-    msg = msg.split(' ');
-    msg.splice(0, 1);
-    msg = msg.join(' ');
-
-    res(this.setMessage(msg, ctx.to, ctx.instanceId));
-  }
-
-  if(msg.toLowerCase().startsWith('clearmessage')) {
-    res(this.clearMessage(ctx.to, ctx.instanceId));
-  }
-
-  if(msg.toLowerCase().startsWith('excludelist')) {
-    res(this.excludeList(ctx.to, ctx.instanceId));
-    return; // to stop from hitting the next command.
-  }
-
-  if(msg.toLowerCase().startsWith('exclude')) {
-    //remove command from message
-    msg = msg.split(' ');
-    msg.splice(0, 1);
-
-    res(this.exclude(msg, ctx.to, ctx.instanceId));
-  }
-
-  if(msg.toLowerCase().startsWith('include')) {
-    //remove command from message
-    msg = msg.split(' ');
-    msg.splice(0, 1);
-
-    res(this.include(msg, ctx.to, ctx.instanceId));
+  switch(ctx.command().toLowerCase()) {
+    case 'setmessage':
+      return this.setMessage(ctx);
+    case 'clearmessage':
+      return this.clearMessage(ctx);
+    case 'excludelist':
+      return this.excludeList(ctx);
+    case 'exclude':
+      return this.exclude(ctx);
+    case 'include':
+      return this.include(ctx);
+    default:
+      return;
   }
 };
 
-IRCJoinMsg.prototype.setMessage = function (msg, chan, id) {
+IRCJoinMsg.prototype.setMessage = function (ctx) {
   global.logger.silly(`${this._pluginName}: Handling setMessage.`);
+  var id = ctx.instanceId();
+  var chan = ctx.to();
+  var msg = ctx.argText();
+
   var confChan = this._config.channels[`${id}:${chan}`];
   if(!confChan) {
     this._config.channels[`${id}:${chan}`] = {};
@@ -121,41 +89,50 @@ IRCJoinMsg.prototype.setMessage = function (msg, chan, id) {
   confChan.msg = msg;
   confChan.excludeNicks = [];
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
-  return `Join message for ${chan} has been set to "${msg}"`;
+  ctx.reply(`Join message for ${chan} has been set to "${msg}"`);
 };
 
-IRCJoinMsg.prototype.clearMessage = function (chan, id) {
+IRCJoinMsg.prototype.clearMessage = function (ctx) {
   global.logger.silly(`${this._pluginName}: Handling clearMessage.`);
+  var id = ctx.instanceId();
+  var chan = ctx.to();
+
   if(this._config.channels[`${id}:${chan}`]) {
     delete this._config.channels[`${id}:${chan}`];
   }
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
-  return `Join message for ${chan} has been cleared.`;
+  ctx.reply(`Join message for ${chan} has been cleared.`);
 };
 
-IRCJoinMsg.prototype.excludeList = function (chan, id) {
+IRCJoinMsg.prototype.excludeList = function (ctx) {
   global.logger.silly(`${this._pluginName}: Handling excludeList.`);
+  var id = ctx.instanceId();
+  var chan = ctx.to();
 
   var confChan = this._config.channels[`${id}:${chan}`];
   if(!confChan) {
     global.logger.debug(`${this._pluginName}: Refusing to show list for a channel where no message has been set.`);
-    return `There is no exclude list, since there is no join message set for this channel.`;
+    ctx.reply(`There is no exclude list, since there is no join message set for this channel.`);
   }
-  return confChan.excludeNicks.length ? confChan.excludeNicks.join(', ') : 'The exclude list for this channel is empty.';
+  ctx.reply(confChan.excludeNicks.length ? confChan.excludeNicks.join(', ') : 'The exclude list for this channel is empty.');
 };
 
-IRCJoinMsg.prototype.exclude = function (nicks, chan, id) {
+IRCJoinMsg.prototype.exclude = function (ctx) {
   global.logger.silly(`${this._pluginName}: Handling exclude.`);
+
+  var id = ctx.instanceId();
+  var chan = ctx.to();
+  var nicks = ctx.args();
 
   if(!nicks.length) {
     global.logger.debug(`${this._pluginName}: Refusing to exclude without parameters provided.`);
-    return `You must provide a list of nicks to exclude!`;
+    ctx.reply(`You must provide a list of nicks to exclude!`);
   }
 
   var confChan = this._config.channels[`${id}:${chan}`];
   if(!confChan) {
     global.logger.debug(`${this._pluginName}: Refusing to exclude from channel without a join message set.`);
-    return `Cannot exclude people from a channel where no join message has been set.`;
+    ctx.reply(`Cannot exclude people from a channel where no join message has been set.`);
   }
 
   for (var i = 0; i < nicks.length; i++) {
@@ -168,21 +145,25 @@ IRCJoinMsg.prototype.exclude = function (nicks, chan, id) {
   this._AKP48.saveConfig(this._config, 'irc-join-msg');
 
   var has = (nicks.length === 1) ? 'has' : 'have';
-  return `${nicks.join(', ')} ${has} been added to the exclude list for ${chan}.`;
+  ctx.reply(`${nicks.join(', ')} ${has} been added to the exclude list for ${chan}.`);
 };
 
-IRCJoinMsg.prototype.include = function (nicks, chan, id) {
+IRCJoinMsg.prototype.include = function (ctx) {
   global.logger.silly(`${this._pluginName}: Handling include.`);
+
+  var id = ctx.instanceId();
+  var chan = ctx.to();
+  var nicks = ctx.args();
 
   if(!nicks.length) {
     global.logger.debug(`${this._pluginName}: Refusing to include without parameters provided.`);
-    return `You must provide a list of nicks to include!`;
+    ctx.reply(`You must provide a list of nicks to include!`);
   }
 
   var confChan = this._config.channels[`${id}:${chan}`];
   if(!confChan) {
     global.logger.debug(`${this._pluginName}: Refusing to include in channel without a join message set.`);
-    return `Cannot include people in a channel where no join message has been set.`;
+    ctx.reply(`Cannot include people in a channel where no join message has been set.`);
   }
 
   var removedNicks = [];
@@ -205,7 +186,7 @@ IRCJoinMsg.prototype.include = function (nicks, chan, id) {
   if(removedNicks.length === 0) {removedNicks = ['nobody']; extra = true;}
   var has = (removedNicks.length === 1) ? 'has' : 'have';
   extra = (removedNicks.length !== nicks.length || extra) ? ' (Some nicks were already not in the exclude list.)' : '';
-  return `${removedNicks.join(', ')} ${has} been removed from the exclude list for ${chan}.${extra}`;
+  ctx.reply(`${removedNicks.join(', ')} ${has} been removed from the exclude list for ${chan}.${extra}`);
 };
 
 module.exports = IRCJoinMsg;
