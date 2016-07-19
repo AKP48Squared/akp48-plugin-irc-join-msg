@@ -124,7 +124,7 @@ IRCJoinMsg.prototype.exclude = function (ctx) {
 
   var id = ctx.instanceId();
   var chan = ctx.to();
-  var nicks = ctx.args();
+  var nicks = ctx.rawArgs();
 
   if(!nicks.length) {
     global.logger.debug(`${this.name}: Refusing to exclude without parameters provided.`);
@@ -155,7 +155,7 @@ IRCJoinMsg.prototype.include = function (ctx) {
 
   var id = ctx.instanceId();
   var chan = ctx.to();
-  var nicks = ctx.args();
+  var nicks = ctx.rawArgs();
 
   if(!nicks.length) {
     global.logger.debug(`${this.name}: Refusing to include without parameters provided.`);
