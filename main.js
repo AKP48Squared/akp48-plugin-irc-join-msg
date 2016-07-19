@@ -171,13 +171,14 @@ IRCJoinMsg.prototype.include = function (ctx) {
   var removedNicks = [];
 
   for (var i = 0; i < nicks.length; i++) {
-    if(!confChan.excludeNicks.includes(nicks[i])) {
+    var nick = nicks[i].toLowerCase();
+    if(!confChan.excludeNicks.includes(nick)) {
       continue;
     }
-    var index = confChan.excludeNicks.indexOf(nicks[i]);
+    var index = confChan.excludeNicks.indexOf(nick);
     while(index > -1) {
       confChan.excludeNicks.splice(index, 1);
-      index = confChan.excludeNicks.indexOf(nicks[i]);
+      index = confChan.excludeNicks.indexOf(nick);
     }
     removedNicks.push(nicks[i]);
   }
